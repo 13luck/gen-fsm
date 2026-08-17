@@ -1,0 +1,50 @@
+{
+  "name": "gen-fsm",
+  "version": "0.5.0",
+  "description": "A zero-dependency FSM engine that treats your application logic as a linear scenario of asynchronous states",
+  "homepage": "https://github.com/13luck/gen-fsm#readme",
+  "keywords": ["fsm", "ai", "game", "simulation", "async", "generator"],
+  "author": "Alexey Ozerov",
+  "license": "MIT",
+  "type": "module",
+  "types": "./lib/index.d.ts",
+  "main": "./lib/index.js",
+  "files": ["lib/**/*"],
+  "scripts": {
+    "clean": "del-cli ./lib",
+    "build": "npm run clean && tsc -p ./tsconfig.json",
+    "test": "vitest",
+    "semantic-release": "semantic-release",
+    "publish": "npm publish --access=public",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.12.0",
+    "del-cli": "^6.0.0",
+    "semantic-release": "^24.2.1",
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.8"
+  },
+  "release": {
+    "branches": ["main"],
+    "dryRun": true,
+    "plugins": [
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ]
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/13luck/gen-fsm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/13luck/gen-fsm/issues"
+  }
+}
