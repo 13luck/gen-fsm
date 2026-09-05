@@ -315,6 +315,42 @@ fsm.dispatch('go')
 
 
 <details>
+<summary>🔴 Cache with expiration</summary>
+
+Automatically remove entries from a cache after a specified timeout.
+
+```ts
+type Context = { cache: Set<string> }
+
+async function* Registry(context: StateContext<Context>) {
+  const processing = new Map<symbol, string>()
+
+  while (true) {
+    const event: unknown = yield
+
+    if (typeof event === 'string') {
+      if (context.cache.has(event)) continue
+      context.cache.add(event)
+      processing.set(context.schedule(10_000), event)
+
+    } else if (typeof event === 'symbol') {
+      if (!processing.has(event)) continue
+      context.cache.delete(processing.get(event)!)
+      processing.delete(event)
+    }
+  }
+}
+
+const context: Context = { cache: new Set<string>() }
+const fsm = genFSM(Registry, context)
+
+const registerValue = (gameId: string) => fsm.dispatch(gameId)
+const exists = (gameId: string) => context.cache.has(gameId)
+```
+</details>
+
+
+<details>
 <summary>🟣 Sequential flow</summary>
 
 Model multi-step workflows by chaining `while` loops. Each loop represents a blocking requirement that must be fulfilled before moving to the next step.
