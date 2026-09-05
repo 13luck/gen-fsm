@@ -75,7 +75,7 @@ Use context for variables that should persist across states.
 
 ```ts
 await fsm.dispatch(event)
-  ```
+```
 
 Dispatches an event to the FSM, it executes `generator.next(event)` under the hood.
 Use `await` if you want to wait for the state update to complete or simply fire and forget.
@@ -344,7 +344,8 @@ const fsm = genFSM(Scenario)
 ```
 </details>
 
-
+<br>
+    
 More examples can be found in `fsm.spec.ts`.
 
 
