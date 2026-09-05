@@ -1,6 +1,6 @@
 {
   "name": "gen-fsm",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A zero-dependency FSM engine that treats your application logic as a linear scenario of asynchronous states",
   "homepage": "https://github.com/13luck/gen-fsm#readme",
   "keywords": ["fsm", "ai", "game", "simulation", "async", "generator"],
