@@ -1,8 +1,11 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { genFSM, StateContext } from './fsm'
 
 
 describe('genFSM', () => {
+  beforeEach(vi.useFakeTimers)
+  afterEach(vi.useRealTimers)
+
   it('transitions through generator return', async () => {
     const log: string[] = []
 
@@ -499,5 +502,52 @@ describe('genFSM', () => {
     await fsm.dispatch('click')
 
     expect(counts).toEqual([1, 2, 1, 2])
+  })
+
+  it('should add and then remove an entry after 10 seconds', async () => {
+    type Context = { cache: Set<string> }
+
+    async function* Registry(context: StateContext<Context>) {
+      const processing = new Map<symbol, string>()
+
+      while (true) {
+        const event: unknown = yield
+
+        if (typeof event === 'string') {
+          if (context.cache.has(event)) continue
+          context.cache.add(event)
+          processing.set(context.schedule(10_000), event)
+
+        } else if (typeof event === 'symbol') {
+          if (!processing.has(event)) continue
+          context.cache.delete(processing.get(event)!)
+          processing.delete(event)
+        }
+      }
+    }
+
+    const context: Context = { cache: new Set<string>() }
+    const fsm = genFSM(Registry, context)
+
+    const registerValue = (gameId: string) => fsm.dispatch(gameId)
+    const exists = (gameId: string) => context.cache.has(gameId)
+
+
+    const gameId = 'gameId'
+
+    // check initial state
+    expect(exists(gameId)).toBe(false)
+
+    await registerValue(gameId)
+
+    // the entry still exists after 9.9 seconds
+    vi.advanceTimersByTime(9999)
+    await Promise.resolve()
+    expect(exists(gameId)).toBe(true)
+
+    // the entry is removed after 10 seconds
+    vi.advanceTimersByTime(1)
+    await Promise.resolve()
+    expect(exists(gameId)).toBe(false)
   })
 })
