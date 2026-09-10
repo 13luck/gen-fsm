@@ -550,4 +550,38 @@ describe('genFSM', () => {
     await Promise.resolve()
     expect(exists(gameId)).toBe(false)
   })
+
+  it('should correctly handle nested generators that wait for specific event', async () => {
+    const log: string[] = []
+
+    async function* waitFor<T>(
+      expected: T
+    ): AsyncGenerator<unknown, T, unknown> {
+      while (true) {
+        const event = yield
+        if (event === expected) return event as T
+      }
+    }
+
+    async function* State() {
+      while (true) {
+        const x = yield* waitFor('x')
+        log.push(x)
+
+        const y = yield* waitFor('y')
+        log.push(y)
+      }
+    }
+
+    const fsm = genFSM(State)
+
+    await fsm.dispatch('y')
+    await fsm.dispatch('miss')
+    await fsm.dispatch('x')
+    await fsm.dispatch('miss')
+    await fsm.dispatch('y')
+    await fsm.dispatch('miss')
+
+    expect(log).toEqual(['x', 'y'])
+  })
 })
